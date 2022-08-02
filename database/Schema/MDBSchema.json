@@ -1,0 +1,106 @@
+// "products": {
+//     "title": "products",
+//     "type": "object",
+//     "required": [
+//         "_id",
+//         "meta_data_id"
+//     ],
+//     "properties": {
+//         "_id": { "type": "number" },
+//         "meta_data_id": { "type": "number" }
+//     }
+// };
+
+// {
+//     "title": "reviews",
+//     "type": "object",
+//     "required": [
+//         "_id",
+//         "product_id",
+//         "rating",
+//         "recommend",
+//         "body",
+//         "char_id",
+//         "helpfulness",
+//         "date",
+//         "reviewer_name",
+//         "email",
+//     ],
+//     "properties": {
+//         "_id": { "type": "number", "unique": true },
+//         "product_id": { "type": "number" },
+//         "rating": { "type": "number" },
+//         "recommend": { "type": "boolean" },
+//         "summary": { "type": "string" },
+//         "body": { "type": "string", "unique": true },
+//         "char_id": { "type": "number", "unique": true },
+//         "helpfulness": { "type": "number" },
+//         "date": { "type": "object" },
+//         "reviewer_name": { "type": "string" },
+//         "email": { "type": "string" },
+//         "photos_id": { "type": "string" },
+//     },
+//     "additionalProperties": false
+// };
+
+// {
+//   "title": "photos",
+//   "type": "object",
+//   "required": [
+//     "_id",
+//     "photos"
+//   ],
+//   "properties": {
+//     "_id": { "type": "number", "unique": true },
+//     "photos": { "type": "array" }
+//   }
+// }
+
+// {
+//   "title": "meta_data",
+//   "type": "object",
+//   "required": [
+//     "_id",
+//     "ratings",
+//     "recommend"
+//     "characteristics"
+//   ],
+//   "properties": {
+//     "_id": { "type": "number", "unique": true },
+//     "ratings": { "type": "ojbect" },
+//     "recommended": { "type": "object" },
+//     "characteristics": { "type": "object" },
+//   }
+// }
+
+// {
+//   "title": "characteristics",
+//   "type": "object",
+//   "required": [
+//     "_id",
+//     "char_val",
+//   ],
+//   "properties": {
+//     "_id": { "type": "number", "unique": true },
+//     "char_val": { "type": "number" },
+//   }
+// }
+
+// {
+//   "title": "characteristics_post",
+//   "type": "object",
+//   "required": [
+//     "_id",
+//     "review_id",
+//     "rating"
+//     "recommend",
+//     "characteristics"
+//     ],
+//   "properties": {
+//     "_id": { "type": "number", "unique": true },
+//     "review_id": { "type": "number" },
+//     "ratings": { "type": "number" },
+//     "recommended": { "type": "boolean" },
+//     "characteristics": { "type": "object" },
+//   }
+// }

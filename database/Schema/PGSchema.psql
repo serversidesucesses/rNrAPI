@@ -1,0 +1,84 @@
+
+
+CREATE TABLE IF NOT EXISTS product (
+  id            SERIAL PRIMARY KEY,
+  name          TEXT CHECK ( CHAR_LENGTH (name) < 40),
+  slogan        TEXT CHECK ( CHAR_LENGTH (slogan) < 150),
+  description   TEXT CHECK ( CHAR_LENGTH (description) < 500),
+  category      TEXT CHECK ( CHAR_LENGTH (category) < 40),
+  default_price SMALLINT NOT NULL
+);
+  -- FOREIGN KEY (meta_data_id)
+  --   references meta_data (_id),
+
+CREATE TABLE IF NOT EXISTS reviews (
+  id            SERIAL PRIMARY KEY,
+  product_id    INT NOT NULL references product (id),
+  rating        SMALLINT NOT NULL,
+  date          BIGINT NOT NULL,
+  summary       TEXT CHECK ( CHAR_LENGTH (summary) < 150),
+  body          TEXT NOT NULL CHECK ( CHAR_LENGTH (body) < 1000),
+  recommend     BOOLEAN NOT NULL,
+  reported      BOOLEAN DEFAULT FALSE,
+  reviewer_name TEXT NOT NULL CHECK ( CHAR_LENGTH (reviewer_name) < 60),
+  reviewer_email TEXT NOT NULL CHECK ( CHAR_LENGTH (reviewer_email) < 60),
+  response      TEXT CHECK ( CHAR_LENGTH (response) < 1000),
+  helpfulness   SMALLINT DEFAULT 0
+);
+  -- FOREIGN KEY (char_id)
+  --   references characteristics_post (_id),
+  -- FOREIGN KEY (photos_id)
+  --   references photos (_id)
+
+CREATE TABLE IF NOT EXISTS reviews_photos (
+  id         SERIAL PRIMARY KEY,
+  review_id  INT UNIQUE NOT NULL references reviews (id),
+  url        TEXT NOT NULL CHECK ( CHAR_LENGTH (url) < 250)
+);
+
+
+
+-- CREATE TABLE [IF NOT EXISTS] meta_data (
+-- 	id              SERIAL,
+--   product_id       INT NOT NULL,
+--   ratings          JSON NOT NULL,
+-- 	recommend        JSON NOT NULL,
+--   characteristics  JSON NOT NULL,
+--   PRIMARY KEY (id),
+--   FOREIGN KEY (product_id) references product (id)
+-- );
+
+CREATE TABLE IF NOT EXISTS characteristics (
+  id                BIGSERIAL PRIMARY KEY,
+  product_id        INT NOT NULL references product (id),
+  name              TEXT NOT NULL CHECK ( CHAR_LENGTH(name) < 10)
+);
+
+CREATE TABLE IF NOT EXISTS characteristic_reviews (
+  id                 BIGSERIAL PRIMARY KEY,
+  characteristics_id INT NOT NULL references characteristics (id),
+  review_id          INT NOT NULL,
+  value              SMALLINT NOT NULL CHECK (value >= 1 AND value <= 5)
+);
+
+
+-- CREATE TABLE product_chars (
+--   id          SERIAL,
+--   product_id  FOREIGN KEY references product (id),
+--   chars       json_agg(json_build_object( SELECT f_id, f_val, l_id, l_val, c_id, c_val, q_id, q_val))
+-- )
+
+-- CREATE TABLE map_chars (
+--   product_id FOREIGN KEY references product (id);
+
+-- )
+
+
+-- CREATE INDEX CONCURRENTLY product_id_index ON meta_data (product_id);
+CREATE INDEX CONCURRENTLY product_id_index ON reviews (product_id);
+-- ALTER TABLE product ADD CONSTRAINT metafk FOREIGN KEY (meta_data_id) references meta_data (id) MATCH FULL;
+-- ALTER TABLE reviews ADD CONSTRAINT charpostfk FOREIGN KEY (char_id) references characteristics_post (id) MATCH FULL;
+-- ALTER TABLE reviews ADD CONSTRAINT photosfk FOREIGN KEY (photos_id) references photos (id) MATCH SIMPLE;
+
+
+
