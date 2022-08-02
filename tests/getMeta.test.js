@@ -1,6 +1,4 @@
-//UNIT TESTS FOR GET REQUEST TO API
-// const axios = require('axios');
-
+const axios = require('axios');
 
 describe('Making get request for product Meta Data ', () => {
 

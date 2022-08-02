@@ -1,5 +1,4 @@
-// const axios = require('axios');
-// // const {expect} = require('')
+const axios = require('axios');
 
 // describe('Using API to update helpfulness ', () => {
 
