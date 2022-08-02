@@ -1,0 +1,36 @@
+{
+  "name": "review_api",
+  "version": "1.0.0",
+  "description": "optimized backend for retail-based frontend application",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/serversidesucesses/rNrAPI.git"
+  },
+  "keywords": [
+    "api",
+    "server"
+  ],
+  "author": "marzmu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/serversidesucesses/rNrAPI/issues"
+  },
+  "homepage": "https://github.com/serversidesucesses/rNrAPI#readme",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "pg": "^8.7.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.19"
+  }
+}
