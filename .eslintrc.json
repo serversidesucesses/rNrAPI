@@ -1,7 +1,13 @@
 {
+    "root": true,
+    "env": {
+        "browser": true,
+        "es2021": true,
+        "es6": true
+    },
     "parserOptions": {
         "ecmaVersion": "latest",
-        "sourceType": "script",
+        "sourceType": "module",
         "ecmaFeatures": {}
     },
     "rules": {
@@ -13,7 +19,7 @@
         "comma-dangle": "error",
         "consistent-this": "error",
         "curly": "error",
-        "indent": [1, 2],
+        "indent": [1, 2, { "SwitchCase": 1 }],
         "for-direction": "error",
         "key-spacing": [1, {"beforeColon": false, "afterColon": true}],
         "no-async-promise-executor": "error",
@@ -64,7 +70,7 @@
         "no-unsafe-negation": "error",
         "no-unsafe-optional-chaining": "error",
         "no-unused-labels": "error",
-        "no-unused-vars": "error",
+        "no-unused-vars": "warn",
         "no-useless-backreference": "error",
         "no-useless-catch": "error",
         "no-useless-escape": "error",
@@ -74,15 +80,10 @@
         "valid-typeof": "error",
         "template-tag-spacing": "error",
         "template-curly-spacing": "error",
-        "spaced-comment": [1, "always"],
-        "space-in-parens": [1, "always"],
         "switch-colon-spacing": "error",
         "prefer-destructuring": "warn",
         "handle-callback-err": "error",
-        "object-curly-spacing": "error",
+        "object-curly-spacing": "off",
         "quotes": ["error", "single", { "allowTemplateLiterals": true }]
-    },
-    "env": {
-        "es6": true
     }
 }
