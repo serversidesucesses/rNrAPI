@@ -7,7 +7,7 @@ const pool = new Pool({
   host: process.env.DB_HOSTNAME,
   database: process.env.DB_NAME,
   password: process.env.DB_PASS,
-  port: process.env.DB_PORT || 5432,
+  port: process.env.DB_PORT || 5432
 });
 
 module.exports.db = {
@@ -21,37 +21,37 @@ module.exports.db = {
 
     console.log(req.query);
 
+    var sort;
     switch (sortOpt) {
       case('relevant'):
-        var sort = 'r.date ASC, helpfulness ASC';
+        sort = 'r.date ASC, helpfulness ASC';
         break;
       case('newest'):
-        var sort = 'r.date ASC';
+        sort = 'r.date ASC';
         break;
       case('helpful'):
-        var sort = 'helpfulness ASC';
+        sort = 'helpfulness ASC';
         break;
     }
     console.log(sort);
 
     pool.query(
       `WITH photos as
-      ( SELECT review_id, json_agg(json_build_object('id', rp.id, 'url', url))
+      ( SELECT review_id, json_agg(json_build_object('id', rp.id, 'url', url)) as photos
         FROM reviews_photos rp JOIN reviews r ON r.id = rp.review_id
-        WHERE product_id = ${prod_id}
+        WHERE product_id = 4
         GROUP by review_id
       ), revs AS
-      ( SELECT r.id, rating, summary, recommend, response, body,
+      ( SELECT r.id as review_id, rating, summary, recommend, response, body,
         date, reviewer_name, helpfulness
-        FROM reviews r WHERE (r.product_id = ${prod_id} AND reported = false)
-        ORDER BY ${sort}
-        LIMIT ${count}
-        OFFSET ${count * (page - 1)}
-      ) SELECT * from revs LEFT JOIN photos ON
-       (photos.review_id = revs.id)`
+        FROM reviews r WHERE (r.product_id = 4 AND reported = false)
+        ORDER BY helpfulness
+        LIMIT 10
+      ) SELECT * from revs LEFT JOIN photos USING
+       (review_id)`
     )
       .then(({rows}) => res.status(200).json(rows))
-      .catch(error => res.status(500).send(error));
+      .catch(err => res.status(500).send(err));
   },
 
   //param: product_id
@@ -106,8 +106,8 @@ module.exports.db = {
         'Characteristics', (select * from cha)
       )`
     )
-    .then(({rows}) => res.status(200).json(rows))
-    .catch(error => res.status(500).send('Internal Server Error'));
+      .then(({rows}) => res.status(200).json(rows))
+      .catch(err => res.status(500).send(err));
   },
 
   addReview: (req, res) => {
@@ -116,19 +116,17 @@ module.exports.db = {
     pool.query(
       `INSERT INTO reviews
        (product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email)
-       VALUES
-       (${product_id}, ${rating}, trunc(extract(epoch from now())*1000),
-       ${summary}, ${body}, ${recommend}, FALSE, ${name}, ${email})
+       VALUES (${product_id}, ${rating}, trunc(extract(epoch from now())*1000), ${summary}, ${body}, ${recommend}, FALSE, ${name}, ${email})
       RETURNING id;`
     )
       .then(({id}) =>
-        _.each(characteristics, ((val, key, list) =>
-        pool.query(
-          `INSERT INTO characteristic_reviews (characteristic_id, review_id, value)
+        _.each(characteristics, ((val, key) =>
+          pool.query(
+            `INSERT INTO characteristic_reviews (characteristic_id, review_id, value)
           VALUES (${key}, ${id}, ${val})`
-        )
-      ))
-      )
+          )
+        ))
+      );
   },
 
 
@@ -144,7 +142,7 @@ module.exports.db = {
       RETURNING helpfulness;`
     )
       .then(({num}) => res.status(200).json(num))
-      .catch(error => res.status(500).send(error));
+      .catch(err => res.status(500).send(err));
   },
 
 
@@ -158,7 +156,7 @@ module.exports.db = {
       RETURNING helpfulness;`
     )
       .then(({num}) => res.status(200).json(num))
-      .catch(error => res.status(500).send('Internal Server Error'));
+      .catch(err => res.status(500).send(err));
   }
 
-}
+};
