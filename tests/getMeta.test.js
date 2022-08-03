@@ -14,30 +14,24 @@ describe('Making get request for product Meta Data ', () => {
   });
 
 
-  it('Should sucessfully retrieve data from the database', () => {
+  it('Should sucessfully retrieve data from the database', async () => {
     // check status code
-    createReq(40438)
-      .then((res) => {
-        expect(res.status).toBe(200);
-      });
-    // check data
-    createReq(780)
-      .then((res) => {
+    await createReq(40438)
+      .then(async (res) => {
+        await expect(res.status).toBe(200);
         expect(res.data).toBeDefined();
       });
+
   });
 
 
-  it('The information should be for the product specified in the request', () => {
+  it('The information should be for the product specified in the request', async () => {
     // get the review for comparision
-    createReq(40438)
-      .then((res) => {
-        expect(res.data.id).toBe(40438);
-      });
-    createReq(780)
-      .then((res) => {
-        expect(res.data.id).toBe(780);
-      });
+    await createReq(43438)
+      .then(async ({data}) => {
+        await expect(data.product_id).toBe(43438);
+      })
+
   });
 
 });

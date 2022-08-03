@@ -30,28 +30,36 @@ module.exports.db = {
         sort = 'r.date ASC';
         break;
       case('helpful'):
-        sort = 'helpfulness ASC';
+        sort = 'helpfulness DESC';
         break;
     }
-    console.log(sort);
 
-    pool.query(
-      `WITH photos as
-      ( SELECT review_id, json_agg(json_build_object('id', rp.id, 'url', url)) as photos
-        FROM reviews_photos rp JOIN reviews r ON r.id = rp.review_id
-        WHERE product_id = 4
-        GROUP by review_id
-      ), revs AS
-      ( SELECT r.id as review_id, rating, summary, recommend, response, body,
-        date, reviewer_name, helpfulness
-        FROM reviews r WHERE (r.product_id = 4 AND reported = false)
-        ORDER BY helpfulness
-        LIMIT 10
-      ) SELECT * from revs LEFT JOIN photos USING
-       (review_id)`
-    )
-      .then(({rows}) => res.status(200).json(rows))
-      .catch(err => res.status(500).send(err));
+    if(!sort) {
+      res.status(404).send('No sorting parameter specified');
+    } else {
+
+      pool.query(
+        `WITH photos as
+        ( SELECT review_id, json_agg(json_build_object('id', rp.id, 'url', url)) as photos
+          FROM reviews_photos rp JOIN reviews r ON r.id = rp.review_id
+          WHERE product_id = ${prod_id}
+          GROUP by review_id
+        ), revs AS
+        ( SELECT r.id as review_id, rating, summary, recommend, response, body,
+          date, reviewer_name, helpfulness
+          FROM reviews r WHERE (r.product_id = ${prod_id} AND reported = false)
+          ORDER BY ${sort}
+          LIMIT ${count}
+          OFFSET ${count * (page - 1)}
+        ) SELECT * from revs LEFT JOIN photos USING
+        (review_id)`
+      )
+        .then(({rows}) => {
+          rows.map((row) => row.date = new Date(row.date * 1))
+          res.status(200).json(rows);
+        })
+        .catch(err => res.status(500).send(err));
+    }
   },
 
   //param: product_id
@@ -75,7 +83,7 @@ module.exports.db = {
           3, (SELECT (count) from rats where rating = 3),
           4, (SELECT (count) from rats where rating = 4),
           5, (SELECT (count) from rats where rating = 5)
-        )
+        ) as Ratings
       ), cha as
       ( SELECT json_build_object(
           'Comfort',  json_build_object(
@@ -94,39 +102,59 @@ module.exports.db = {
             'id', (SELECT id from chars where name = 'Quality'),
             'value', (SELECT average from chars where name = 'Quality')
           )
-        )
+        ) as Characteristics
       ), rec as
       ( SELECT json_build_object(
         0, (SELECT count(recommend) from reviews where recommend = 'false' and product_id = ${prod_id} ),
         1, (SELECT count(recommend) from reviews where recommend = 'true' and product_id = ${prod_id} )
-        )
-      ) SELECT json_build_object(
-        'Ratings', (select * from stripped),
-        'Recommend', (select * from rec),
-        'Characteristics', (select * from cha)
-      )`
+        ) as Recommend
+      ) SELECT * from
+        stripped,
+        rec,
+        cha`
     )
-      .then(({rows}) => res.status(200).json(rows))
+      .then(({rows}) => {
+        rows = rows[0];
+        rows.product_id = prod_id;
+        res.status(200).json(rows)
+      })
       .catch(err => res.status(500).send(err));
   },
 
   addReview: (req, res) => {
-    const {product_id, rating, summary, body, recommend, name, email, photos, characteristics} = req.query;
+
+    const {product_id, rating, summary, body, recommend, name, email, photos, characteristics} = req.body;
 
     pool.query(
       `INSERT INTO reviews
-       (product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email)
-       VALUES (${product_id}, ${rating}, trunc(extract(epoch from now())*1000), ${summary}, ${body}, ${recommend}, FALSE, ${name}, ${email})
-      RETURNING id;`
+                   (product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email)
+       VALUES ($1, $2, trunc(extract(epoch from now())*1000), $3, $4 , $5, FALSE, $6, $7)
+      RETURNING id;`, [product_id, rating, summary, body, recommend, name, email]
     )
-      .then(({id}) =>
+      .then(({rows}) => {
+        const id = rows[0].id;
+
+        if (photos) {
+          _.each(photos, (elem) => {
+            pool.query(
+              `INSERT INTO reviews_photos (review_id, url)
+              VALUES (${id}, ${elem})`
+            )
+              .catch((err) => console.log(`PHOTOS ERROR: ${err}`));
+          });
+        }
         _.each(characteristics, ((val, key) =>
           pool.query(
             `INSERT INTO characteristic_reviews (characteristic_id, review_id, value)
-          VALUES (${key}, ${id}, ${val})`
+            VALUES (${key}, ${id}, ${val})`
           )
-        ))
-      );
+            .catch((err) => console.log(`CHARACTERISTIC ERROR: ${err}`))
+        ));
+
+        res.status(201).json('Posted!');
+      })
+      .catch((err) => (console.log(`POST REVIEW: ${err}`)));
+
   },
 
 
@@ -141,21 +169,23 @@ module.exports.db = {
       WHERE id = ${rev_id}
       RETURNING helpfulness;`
     )
-      .then(({num}) => res.status(200).json(num))
+      .then(({num}) => res.status(204).json(num))
       .catch(err => res.status(500).send(err));
   },
 
 
   reportReview: (req, res) => {
-    const rev_id = parseInt(req.query.review_id);
+
+    const rev_id = parseInt(req.params.review_id);
+    console.log(rev_id);
 
     pool.query(
       `UPDATE reviews r
-      SET helpfulness = helpfulness + 1
+      SET reported = true
       WHERE id = ${rev_id}
       RETURNING helpfulness;`
     )
-      .then(({num}) => res.status(200).json(num))
+      .then(({num}) => res.status(204).json(num))
       .catch(err => res.status(500).send(err));
   }
 
