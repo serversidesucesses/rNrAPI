@@ -4,7 +4,7 @@ const axios = require('axios');
 describe('Posting a review to the API ', () => {
   const body = {
     product_id: 43848,
-    rating: 3,
+    rating: 5,
     summary: `Thatll do pig, thatll do!`,
     body: 'This is how i am going to test this route and see if it works!',
     recommend: 'true',

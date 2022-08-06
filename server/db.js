@@ -124,7 +124,7 @@ module.exports.db = {
   addReview: (req, res) => {
 
     const {product_id, rating, summary, body, recommend, name, email, photos, characteristics} = req.body;
-
+    console.log(product_id);
     pool.query(
       `INSERT INTO reviews
                    (product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email)
